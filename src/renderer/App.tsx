@@ -1,56 +1,32 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
-import icon from '../../assets/icon.svg';
 import 'tailwindcss/tailwind.css';
-import { useState } from 'react';
 import './App.css';
-
-function Home() {
-  const [cpu_id, setCpuId] = useState('');
-  const [system_serial, setSystemSerial] = useState('');
-  const [system_uuid, setSystemUuid] = useState('');
-  const [baseboard_serial, setBaseboardSerial] = useState('');
-  const [mac_addresses, setMacAddresses] = useState([] as string[]);
-  const getSerialNumber = () => {
-    window.api.testSend();
-    window.api.testReceive((data: any) => {
-      setCpuId(data.cpu_id);
-      setSystemSerial(data.system_serial);
-      setSystemUuid(data.system_uuid);
-      setBaseboardSerial(data.baseboard_serial);
-      setMacAddresses(data.mac_addresses);
-    });
-  };
-  return (
-    <div>
-      <div className="Hello">
-        <img width="200" alt="icon" src={icon} />
-      </div>
-      <h1 className="bg-gray-700 text-center text-red-200">DRM Mina</h1>
-      <div className="Hello">
-        <button type="button" onClick={getSerialNumber}>
-          get id
-        </button>
-        <ul>
-          <li>CPU ID: {cpu_id}</li>
-          <li>System Serial: {system_serial}</li>
-          <li>System UUID: {system_uuid}</li>
-          <li>Baseboard Serial: {baseboard_serial}</li>
-          {mac_addresses.map((mac: string, index: number) => (
-            <li key={index}>MAC Address: {mac}</li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-}
+import Home from './pages/home';
+import { Sidebar } from './components/sidebar';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-      </Routes>
-    </Router>
+    <ThemeProvider defaultTheme="dark" storageKey="theme-mode">
+      <div className="border-t absolute inset-0">
+        <div className="bg-background absolute inset-0">
+          <div className="grid lg:grid-cols-5">
+            <Router>
+              <Sidebar className="lg:block h-screen" />
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/store" element={<Home />} />
+                <Route path="/browse" element={<div>browse</div>} />
+                <Route path="/categories" element={<div>categories</div>} />
+                <Route path="/library" element={<div>library</div>} />
+                <Route path="/wishlist" element={<div>wishlist</div>} />
+                <Route path="/wallet" element={<div>wallet</div>} />
+              </Routes>
+            </Router>
+          </div>
+        </div>
+      </div>
+    </ThemeProvider>
   );
 }
 
