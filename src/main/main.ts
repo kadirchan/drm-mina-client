@@ -14,7 +14,21 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import sudo from '@vscode/sudo-prompt';
+import { RawIdentifiers } from '../lib/identity/identifiers';
+import { platform } from 'os';
+import { getLinuxSystemInfo } from '../lib/identity/linux';
+import { getWindowsSystemInfo } from '../lib/identity/windows';
+import { getMacOSSystemInfo } from '../lib/identity/macos';
+
+let isSystemInfoSet = false;
+let system_info: RawIdentifiers = {
+  cpuId: '',
+  systemSerial: '',
+  systemUUID: '',
+  baseboardSerial: '',
+  macAddress: [],
+  diskSerial: '',
+};
 
 class AppUpdater {
   constructor() {
@@ -25,46 +39,6 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
-
-let system_info = {};
-
-function getSystemInfo() {
-  const options = {
-    encoding: 'utf-8',
-    name: 'Electron',
-    icns: '/assets/icon.svg',
-  };
-  const command =
-    "dmidecode -t processor | grep ID && dmidecode -s system-serial-number && dmidecode -s system-uuid && dmidecode -t baseboard | grep Serial | awk '{print $3}' && ip addr show | grep link/ether | awk '{print $2}'";
-  console.log(command);
-  sudo.exec(command, options, (error, stdout, stderr) => {
-    if (error) throw error;
-    if (stdout) {
-      console.log(stdout);
-      const lines = stdout.toString().split('\n');
-      const cpu_id = lines[0].slice(4, lines[0].length).trim();
-      const system_serial = lines[1].trim();
-      const system_uuid = lines[2].trim();
-      const baseboard_serial = lines[3].split(' ')[2].trim();
-      const mac_addresses = lines
-        .slice(4, lines.length - 1)
-        .map((line: string) => line.trim().slice(11, 28));
-
-      system_info = {
-        cpu_id,
-        system_serial,
-        system_uuid,
-        baseboard_serial,
-        mac_addresses,
-      };
-      console.log('Data:', system_info);
-    }
-  });
-}
-
-ipcMain.on('test-send', async (event) => {
-  event.reply('test-receive', system_info);
-});
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -146,7 +120,7 @@ const createWindow = async () => {
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
-  new AppUpdater();
+  // new AppUpdater();
 };
 
 /**
@@ -164,7 +138,26 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(() => {
-    getSystemInfo();
+    if (platform() === 'linux') {
+      getLinuxSystemInfo().then((data) => {
+        system_info = data;
+        isSystemInfoSet = true;
+        console.log('Data:', system_info);
+      });
+    } else if (platform() === 'win32') {
+      getWindowsSystemInfo().then((data) => {
+        system_info = data;
+        isSystemInfoSet = true;
+        console.log('Data:', system_info);
+      });
+    } else if (platform() === 'darwin') {
+      getMacOSSystemInfo().then((data) => {
+        system_info = data;
+        isSystemInfoSet = true;
+        console.log('Data:', system_info);
+      });
+    }
+
     createWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
