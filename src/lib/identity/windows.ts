@@ -25,6 +25,7 @@ export function getWindowsSystemInfo(): Promise<RawIdentifiers> {
       if (error) reject(error);
 
       if (stdout) {
+        console.log(stdout);
         const lines = stdout.toString().split('\n');
         const cpu_id = lines[1].trim();
         const system_serial = lines[3].trim();
