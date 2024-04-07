@@ -50,7 +50,3 @@ export function getLinuxSystemInfo(): Promise<RawIdentifiers> {
     });
   });
 }
-
-ipcMain.on('test-send', async (event) => {
-  event.reply('test-receive', system_info);
-});

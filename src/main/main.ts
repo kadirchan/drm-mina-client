@@ -143,6 +143,7 @@ app
         system_info = data;
         isSystemInfoSet = true;
         console.log('Data:', system_info);
+        console.log(JSON.stringify(system_info));
       });
     } else if (platform() === 'win32') {
       getWindowsSystemInfo().then((data) => {
