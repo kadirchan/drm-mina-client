@@ -97,7 +97,15 @@ export default function GameDetail() {
                     className=" w-4 h-4 inline-block"
                   />
                 </div>
-                <Button variant={'default'} className="">
+                <Button
+                  variant={'default'}
+                  onClick={() => {
+                    window.electron.ipcRenderer.sendMessage(
+                      'redirect-buy-game',
+                      [game?.name],
+                    );
+                  }}
+                >
                   Buy Game
                 </Button>
               </div>

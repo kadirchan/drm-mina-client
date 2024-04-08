@@ -2,7 +2,7 @@
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-export type Channels = 'ipc-example';
+export type Channels = 'redirect-buy-game';
 
 const electronHandler = {
   ipcRenderer: {
@@ -24,16 +24,6 @@ const electronHandler = {
   },
 };
 
-contextBridge.exposeInMainWorld('api', {
-  // Invoke Methods
-  testInvoke: (args: any) => ipcRenderer.invoke('test-invoke', args),
-  // Send Methods
-  testSend: (args: any) => ipcRenderer.send('test-send', args),
-  // Receive Methods
-  testReceive: (callback: (arg0: any) => void) =>
-    ipcRenderer.on('test-receive', (event, data) => {
-      callback(data);
-    }),
-});
+contextBridge.exposeInMainWorld('electron', electronHandler);
 
 export type ElectronHandler = typeof electronHandler;

@@ -37,8 +37,20 @@ class AppUpdater {
     autoUpdater.checkForUpdatesAndNotify();
   }
 }
+const ENDPOINT = 'http://localhost:3000/';
 
 let mainWindow: BrowserWindow | null = null;
+
+ipcMain.on('redirect-buy-game', (event, gameName) => {
+  console.log('Redirecting to game:', gameName);
+  const url =
+    ENDPOINT +
+    'game-detail?game=' +
+    gameName +
+    '&device=' +
+    JSON.stringify(system_info);
+  require('electron').shell.openExternal(url);
+});
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -161,7 +173,8 @@ app
   .whenReady()
   .then(() => {
     createWindow();
-    // getIdentifiers();
+    getIdentifiers();
+
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
