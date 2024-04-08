@@ -135,30 +135,33 @@ app.on('window-all-closed', () => {
   }
 });
 
+const getIdentifiers = () => {
+  if (platform() === 'linux') {
+    getLinuxSystemInfo().then((data) => {
+      system_info = data;
+      isSystemInfoSet = true;
+      console.log('Data:', system_info);
+    });
+  } else if (platform() === 'win32') {
+    getWindowsSystemInfo().then((data) => {
+      system_info = data;
+      isSystemInfoSet = true;
+      console.log('Data:', system_info);
+    });
+  } else if (platform() === 'darwin') {
+    getMacOSSystemInfo().then((data) => {
+      system_info = data;
+      isSystemInfoSet = true;
+      console.log('Data:', system_info);
+    });
+  }
+};
+
 app
   .whenReady()
   .then(() => {
-    if (platform() === 'linux') {
-      getLinuxSystemInfo().then((data) => {
-        system_info = data;
-        isSystemInfoSet = true;
-        console.log('Data:', system_info);
-      });
-    } else if (platform() === 'win32') {
-      getWindowsSystemInfo().then((data) => {
-        system_info = data;
-        isSystemInfoSet = true;
-        console.log('Data:', system_info);
-      });
-    } else if (platform() === 'darwin') {
-      getMacOSSystemInfo().then((data) => {
-        system_info = data;
-        isSystemInfoSet = true;
-        console.log('Data:', system_info);
-      });
-    }
-
     createWindow();
+    // getIdentifiers();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
